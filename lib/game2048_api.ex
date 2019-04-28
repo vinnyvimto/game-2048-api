@@ -16,7 +16,8 @@ defmodule Game2048Api do
       Registry.child_spec(
         keys: :duplicate,
         name: Registry.Game2048Api
-      )
+      ),
+      Game2048Api.Repo
     ]
 
     opts = [strategy: :one_for_one, name: Game2048Api.Application]

@@ -25,7 +25,10 @@ defmodule Game2048Api.MixProject do
       {:cowboy, "~> 2.4"},
       {:plug, "~> 1.7"},
       {:plug_cowboy, "~> 2.0"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:ecto_sql, "~> 3.0"},
+      {:myxql, "~> 0.2.0"},
+      {:corsica, "~> 1.0"}
     ]
   end
 end
