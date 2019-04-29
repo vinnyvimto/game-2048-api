@@ -23,21 +23,7 @@ defmodule Game2048Api.SocketHandler do
 
     decoded = Jason.decode!(message)
 
-    game = Game2048Api.Game |> Ecto.Query.last() |> Game2048Api.Repo.one()
-
-    valueMatrix = Jason.encode!(Map.get(decoded, "newValMatrix"))
-    data = %{value_matrix: valueMatrix, score: Map.get(decoded, "score")}
-
-    if game do
-      # Update the existing game
-      changeset = Game2048Api.Game.changeset(game, data)
-      Game2048Api.Repo.update(changeset)
-    else
-      # Create new game
-      game = %Game2048Api.Game{}
-      changeset = Game2048Api.Game.changeset(game, data)
-      Game2048Api.Repo.insert(changeset)
-    end
+    if is_map(decoded), do: saveMove(decoded)
 
     Registry.Game2048Api
     |> Registry.dispatch(state.registry_key, fn entries ->
@@ -53,5 +39,23 @@ defmodule Game2048Api.SocketHandler do
 
   def websocket_info(info, state) do
     {:reply, {:text, info}, state}
+  end
+
+  defp saveMove(decoded) do
+    game = Game2048Api.Game |> Ecto.Query.last() |> Game2048Api.Repo.one()
+
+    valueMatrix = Jason.encode!(Map.get(decoded, "newValMatrix"))
+    data = %{value_matrix: valueMatrix, score: Map.get(decoded, "score")}
+
+    if game do
+      # Update the existing game
+      changeset = Game2048Api.Game.changeset(game, data)
+      Game2048Api.Repo.update(changeset)
+    else
+      # Create new game
+      game = %Game2048Api.Game{}
+      changeset = Game2048Api.Game.changeset(game, data)
+      Game2048Api.Repo.insert(changeset)
+    end
   end
 end
