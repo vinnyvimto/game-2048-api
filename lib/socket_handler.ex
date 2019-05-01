@@ -18,23 +18,27 @@ defmodule Game2048Api.SocketHandler do
   def websocket_handle({:text, json}, state) do
     # IO.inspect binding()
 
-    payload = Jason.decode!(json)
-    message = payload["data"]["message"]
+    if json != "__ping__" do
+      payload = Jason.decode!(json)
+      message = payload["data"]["message"]
 
-    decoded = Jason.decode!(message)
+      decoded = Jason.decode!(message)
 
-    if is_map(decoded), do: saveMove(decoded)
+      if is_map(decoded), do: saveMove(decoded)
 
-    Registry.Game2048Api
-    |> Registry.dispatch(state.registry_key, fn entries ->
-      for {pid, _} <- entries do
-        if pid != self() do
-          Process.send(pid, message, [])
+      Registry.Game2048Api
+      |> Registry.dispatch(state.registry_key, fn entries ->
+        for {pid, _} <- entries do
+          if pid != self() do
+            Process.send(pid, message, [])
+          end
         end
-      end
-    end)
+      end)
 
-    {:reply, {:text, message}, state}
+      {:reply, {:text, message}, state}
+    else
+      {:reply, {:text, "__pong__"}, state}
+    end
   end
 
   def websocket_info(info, state) do
